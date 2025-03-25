@@ -1,0 +1,27 @@
+services:
+  backend:
+    container_name: ft-transcendence-auth-service
+    image: jbadaire/auth_service:latest
+    restart: always
+    networks:
+      - ft_transcendence
+    env_file:
+      - .env
+    environment:
+      BRANCH: pre-prod
+
+  transcendence-webserver:
+    container_name: ft-transcendence-webserver
+    image: jbadaire/front_end:latest
+    restart: always
+    networks:
+      - ft_transcendence
+    ports:
+      - "25565:443"
+    depends_on:
+      - backend
+
+networks:
+  ft_transcendence:
+    name: transcendence
+    driver: bridge
