@@ -7,19 +7,28 @@ services:
       - ft_transcendence
     env_file:
       - .env
-    environment:
-      BRANCH: pre-prod
+    volumes:
+      - auth-service-vlm:/app/
 
   transcendence-webserver:
     container_name: ft-transcendence-webserver
-    image: jbadaire/front_end:latest
-    restart: always
+    image: ghcr.io/42-transcendance-cgpsv/nginx:latest
+    restart: no
     networks:
       - ft_transcendence
     ports:
       - "25565:443"
     depends_on:
       - backend
+
+volumes:
+  auth-service-vlm:
+    name: auth-service-vlm
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /sgoinfre/jbadaire/data/auth_service
 
 networks:
   ft_transcendence:
