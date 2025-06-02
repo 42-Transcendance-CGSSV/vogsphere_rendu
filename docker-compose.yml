@@ -2,13 +2,29 @@ version: "3.8"
 
 services:
   transcendence_front_end:
+    container_name: front_end
     build:
       context: ./omni_front
       dockerfile: Dockerfile
-    container_name: front_end
     volumes:
       - ft_transcendence_front_vlm:/shared
     restart: "no"
+
+  transcendence_auth:
+    container_name: ft-transcendence-auth
+    build:
+      context: ./auth_service
+      dockerfile: Dockerfile
+    restart: always
+    networks:
+      - ft_transcendence_back
+    healthcheck:
+      test: [ "CMD", "curl", "-k", "-f", "http://0.0.0.0:25565/healthcheck" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - auth_vlm:/app
 
   transcendence_nginx:
     container_name: ft-transcendence-nginx
@@ -18,11 +34,14 @@ services:
     restart: always
     networks:
       - ft_transcendence_front
+      - ft_transcendence_back
     ports:
       - "25565:443"
     depends_on:
       transcendence_front_end:
         condition: service_completed_successfully
+      transcendence_auth:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD", "curl", "-k", "-f", "https://localhost:25565/nginx_heath" ]
       interval: 10s
@@ -39,8 +58,18 @@ volumes:
       type: none
       o: bind
       device: /home/jimmy/sgoinfre/jbadaire/data/front_end
+  auth_vlm:
+    name: auth_vlm
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/jimmy/sgoinfre/jbadaire/data/auth
 
 networks:
   ft_transcendence_front:
     name: transcendence_front
+    driver: bridge
+  ft_transcendence_back:
+    name: transcendence_back
     driver: bridge

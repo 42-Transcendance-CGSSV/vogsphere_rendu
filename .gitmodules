@@ -4,3 +4,6 @@
 [submodule "omni_front"]
 	path = omni_front
 	url = git@github.com:42-Transcendance-CGSSV/omniFront.git
+[submodule "auth_service"]
+	path = auth_service
+	url = git@github.com:42-Transcendance-CGSSV/auth_service.git
