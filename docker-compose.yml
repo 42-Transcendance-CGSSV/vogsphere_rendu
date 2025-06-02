@@ -1,36 +1,46 @@
+version: "3.8"
+
 services:
-  backend:
-    container_name: ft-transcendence-auth-service
-    image: jbadaire/auth_service:latest
+  transcendence_front_end:
+    build:
+      context: ./omni_front
+      dockerfile: Dockerfile
+    container_name: front_end
+    volumes:
+      - ft_transcendence_front_vlm:/shared
+    restart: "no"
+
+  transcendence_nginx:
+    container_name: ft-transcendence-nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
     restart: always
     networks:
-      - ft_transcendence
-    env_file:
-      - .env
-    volumes:
-      - auth-service-vlm:/app/
-
-  transcendence-webserver:
-    container_name: ft-transcendence-webserver
-    image: ghcr.io/42-transcendance-cgpsv/nginx:latest
-    restart: no
-    networks:
-      - ft_transcendence
+      - ft_transcendence_front
     ports:
       - "25565:443"
     depends_on:
-      - backend
+      transcendence_front_end:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [ "CMD", "curl", "-k", "-f", "https://localhost:25565/nginx_heath" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - ft_transcendence_front_vlm:/usr/share/nginx/html
 
 volumes:
-  auth-service-vlm:
-    name: auth-service-vlm
+  ft_transcendence_front_vlm:
+    name: ft_transcendence_front_vlm
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /sgoinfre/jbadaire/data/auth_service
+      device: /home/jimmy/sgoinfre/jbadaire/data/front_end
 
 networks:
-  ft_transcendence:
-    name: transcendence
+  ft_transcendence_front:
+    name: transcendence_front
     driver: bridge
