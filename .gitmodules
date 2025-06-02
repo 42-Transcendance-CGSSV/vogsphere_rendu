@@ -1,0 +1,6 @@
+[submodule "nginx"]
+	path = nginx
+	url = git@github.com:42-Transcendance-CGSSV/nginx.git
+[submodule "omni_front"]
+	path = omni_front
+	url = git@github.com:42-Transcendance-CGSSV/omniFront.git
