@@ -1,0 +1,11 @@
+ENVIRONMENT=DEVELOPMENT
+LOG_LEVEL=debug
+BREVO_API_KEY=default_api_key
+LOG_TIME_FORMAT=${day}:${month}:${year} ${hours}:${minutes} (${seconds}:${milliseconds})
+
+# Noms des tables en base de données
+DB_PICTURES_TABLE=pictures
+DB_TOTP_TABLE=two_factor
+
+# Clé secrète pour les tokens JWT
+JWT_SECRET=default_secret

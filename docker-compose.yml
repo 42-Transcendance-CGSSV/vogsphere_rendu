@@ -57,14 +57,14 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/jimmy/sgoinfre/jbadaire/data/front_end
+      device: ~/sgoinfre/ft_transcendence/data/front_end
   auth_vlm:
     name: auth_vlm
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/jimmy/sgoinfre/jbadaire/data/auth
+      device: ~/sgoinfre/ft_transcendence/data/auth
 
 networks:
   ft_transcendence_front:
