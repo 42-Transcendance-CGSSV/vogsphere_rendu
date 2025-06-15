@@ -18,7 +18,7 @@ services:
       - ft_transcendence_back
     healthcheck:
       test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3000/healthcheck" ]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 3
     volumes:
@@ -42,10 +42,10 @@ services:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "wget", "--spider", "-q", "https://0.0.0.0:25565/nginx_heath" ]
-      start_period: 5s
-      interval: 5s
-      timeout: 5s
-      retries: 3
+      start_period: 1s
+      interval: 2s
+      timeout: 2s
+      retries: 1
 
 volumes:
   auth_vlm:

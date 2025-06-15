@@ -24,7 +24,6 @@ Commands:
   clean              Nettoie les volumes, images, certifs, tokens
   setup-ssl          Génère les certificats SSL
   setup-env          Génère les tokens dans .env
-  rebuild            Reconstruit et démarre
 EOF
 }
 
@@ -70,12 +69,13 @@ function setup_ssl() {
 function build() {
   check_env
   setup_ssl
+  mkdir -p ~/sgoinfre/ft_transcendence/data/auth_service
   if [ "$1" ]; then
     echo -e "${GREEN}Building $1...${NC}"
-    $DOCKER_COMPOSE --build "$1"
+    $DOCKER_COMPOSE up --build "$1"
   else
     echo -e "${GREEN}Building all services...${NC}"
-    $DOCKER_COMPOSE build
+    $DOCKER_COMPOSE up --build
   fi
 }
 
@@ -117,16 +117,8 @@ function clean() {
   docker builder prune -f
   $DOCKER_COMPOSE down -v
   rm -rf nginx/web_server/ft_transcendence.crt && rm -rf nginx/web_server/ft_transcendence.key
-}
-
-
-function rebuild() {
-  setup_ssl
-  if [ "$1" ]; then
-    $DOCKER_COMPOSE up --build "$1"
-  else
-    $DOCKER_COMPOSE up --build
-  fi
+  sleep 2
+  rm -rf ~/sgoinfre/ft_transcendence/data/auth_service/
 }
 
 # Dispatcher
