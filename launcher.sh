@@ -10,12 +10,11 @@ NC="\033[0m"
 
 function help() {
 cat <<EOF
-Usage: ./dev.sh [command]
+Usage: ./launcher.sh [command]
 
 Commands:
   help               Affiche cette aide
-  build [service]    Construit les conteneurs (ou un service)
-  up                 Démarre les conteneurs (foreground)
+  build              Construit et lance les conteneurs
   down               Arrête et supprime tous les conteneurs
   stop               Arrête tous les conteneurs
   restart [service]  Redémarre les conteneurs
@@ -34,9 +33,17 @@ function check_env() {
     exit 1
   fi
 
+  IP_ADDRESS=$(ip addr | awk '/inet / {if (++n==2) print $2}' | cut -d/ -f1)
+  sed -i '/^IP=.*/d' .env
+  sed -i '/^VITE_IP=.*/d' .env
+
+  export IP=IP_ADDRESS
+  echo -e "\nIP=$IP_ADDRESS" >> .env
+  echo -e "\nVITE_IP=$IP_ADDRESS" >> .env
+
   local required_vars=(
     ENVIRONMENT LOG_LEVEL BREVO_API_KEY
-    JWT_SECRET
+    JWT_SECRET IP
   )
 
   for var in "${required_vars[@]}"; do
@@ -47,41 +54,38 @@ function check_env() {
   done
 
   echo -e "${GREEN}Environment variables check passed${NC}"
-  IP_ADDRESS=$(ip addr | awk '/inet / {if (++n==2) print $2}' | cut -d/ -f1)
   echo -e "${YELLOW}Detected IP: ${IP_ADDRESS}${NC}"
 }
 
 function setup_ssl() {
   echo -e "${YELLOW}Setting up SSL...${NC}"
+
+  mkdir -p ~/.local/bin/;
+  if [ ! -f ~/.local/bin/mkcert ]; then
+    curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
+    chmod +x mkcert-v*-linux-amd64
+    mv mkcert-v*-linux-amd64 ~/.local/bin/mkcert
+    grep -qxF 'export PATH="$HOME/.local/bin:$PATH"' ~/.zshrc || echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+    zsh
+  fi
   mkdir -p nginx/web_server
-  if [ ! -f nginx/web_server/ft_transcendence.crt ] || [ ! -f nginx/web_server/ft_transcendence.key ]; then
-    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-      -keyout nginx/web_server/ft_transcendence.key -out nginx/web_server/ft_transcendence.crt \
-      -subj "/C=FR/ST=AURA/L=Lyon/O=42/OU=Ft_transcendence/CN=127.0.0.1"
+  if [ ! -f nginx/web_server/key.pem ] || [ ! -f nginx/web_server/cert.pem ]; then
+    mkcert -cert-file nginx/web_server/cert.pem -key-file nginx/web_server/key.pem \
+    localhost 127.0.0.1 $(ip addr | awk '/inet / {if (++n==2) print $2}' | cut -d/ -f1) ::1
     echo -e "${GREEN}SSL Certificate generated !${NC}"
   else
     echo -e "${GREEN}SSL Certificate is already present !${NC}"
   fi
-  chmod 644 nginx/web_server/ft_transcendence.crt
-  chmod 600 nginx/web_server/ft_transcendence.key
+  chmod 644 nginx/web_server/key.pem
+  chmod 600 nginx/web_server/cert.pem
 }
 
 function build() {
   check_env
   setup_ssl
   mkdir -p ~/sgoinfre/ft_transcendence/data/auth_service
-  if [ "$1" ]; then
-    echo -e "${GREEN}Building $1...${NC}"
-    $DOCKER_COMPOSE up --build "$1"
-  else
-    echo -e "${GREEN}Building all services...${NC}"
-    $DOCKER_COMPOSE up --build
-  fi
-}
-
-function up() {
-  check_env
-  $DOCKER_COMPOSE up
+  echo -e "${GREEN}Building all services...${NC}"
+  $DOCKER_COMPOSE up --build
 }
 
 function down() {
@@ -113,12 +117,23 @@ function ps_containers() {
 }
 
 function clean() {
-  down
-  docker builder prune -f
+  set -e  # Exit on error
+
+  CERT_PATH="./nginx/web_server"
+  DATA_PATH="$HOME/sgoinfre/ft_transcendence/"
+
+  echo -e "${YELLOW}This will stop containers, prune images, and delete SSL/data files.${NC}"
+  read -p "Are you sure you want to continue? [y/N] " confirm
+  [[ "$confirm" != "y" && "$confirm" != "Y" ]] && echo "Aborted." && return
+
   $DOCKER_COMPOSE down -v
-  rm -rf nginx/web_server/ft_transcendence.crt && rm -rf nginx/web_server/ft_transcendence.key
-  sleep 2
-  rm -rf ~/sgoinfre/ft_transcendence/data/auth_service/
+  docker builder prune -af
+
+  [ -f "$CERT_PATH/key.pem" ] && rm -f "$CERT_PATH/key.pem"
+  [ -f "$CERT_PATH/cert.pem" ] && rm -f "$CERT_PATH/cert.pem"
+
+  [ -d "$DATA_PATH" ] && rm -rf "$DATA_PATH"
+  echo -e "${GREEN}Clean completed.${NC}"
 }
 
 # Dispatcher
@@ -135,5 +150,5 @@ case "$1" in
   setup-ssl) setup_ssl ;;
   check-env) check_env ;;
   rebuild) shift; rebuild "$@" ;;
-  *) echo "Commande inconnue: $1. Tapez ./launcher.sh help" ;;
+  *) echo "Commande inconnue: $1."; help ;;
 esac

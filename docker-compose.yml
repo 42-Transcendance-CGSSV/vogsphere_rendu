@@ -5,6 +5,8 @@ services:
       context: ./omni_front
       dockerfile: Dockerfile
       target: builded
+      args:
+        VITE_IP: ${VITE_IP}
     image: ft_transcendence:builded-front
     restart: "no"
 
@@ -16,6 +18,8 @@ services:
     restart: always
     networks:
       - ft_transcendence_back
+    env_file:
+      - .env
     healthcheck:
       test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3000/healthcheck" ]
       interval: 5s
@@ -33,8 +37,11 @@ services:
     networks:
       - ft_transcendence_front
       - ft_transcendence_back
+    env_file:
+      - .env
     ports:
       - "25565:443"
+      - "8080:80"
     depends_on:
       transcendence_front_end:
         condition: service_completed_successfully
