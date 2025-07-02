@@ -29,6 +29,23 @@ services:
       - auth_vlm:/app/
       - profiles_pictures:/app/data/static/profiles_pictures
 
+  transcendence_pong:
+    container_name: ft-transcendence-pong
+    build:
+      context: ./pong_service
+      dockerfile: Dockerfile
+    restart: always
+    networks:
+      - ft_transcendence_back
+    env_file:
+      - .env
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3001/healthcheck" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+
   transcendence_nginx:
     container_name: ft-transcendence-nginx
     build:
@@ -47,6 +64,8 @@ services:
       transcendence_front_end:
         condition: service_completed_successfully
       transcendence_auth:
+        condition: service_healthy
+      transcendence_pong:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "wget", "--spider", "-q", "https://0.0.0.0:25565/nginx_heath" ]

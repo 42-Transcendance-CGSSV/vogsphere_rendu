@@ -1,4 +1,0 @@
-ENVIRONMENT=DEVELOPMENT
-LOG_LEVEL=debug
-BREVO_API_KEY=default_api_key
-JWT_SECRET=default_secret
