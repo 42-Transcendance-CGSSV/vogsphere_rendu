@@ -7,3 +7,9 @@
 [submodule "auth_service"]
 	path = auth_service
 	url = git@github.com:42-Transcendance-CGSSV/auth_service.git
+[submodule "pong_service"]
+	path = pong_service
+	url = git@github.com:42-Transcendance-CGSSV/pong_service.git
+[submodule "pong_ai_service"]
+	path = pong_ai_service
+	url = git@github.com:42-Transcendance-CGSSV/pong_ai_service.git
