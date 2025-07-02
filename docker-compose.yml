@@ -27,6 +27,7 @@ services:
       retries: 3
     volumes:
       - auth_vlm:/app/
+      - profiles_pictures:/app/data/static/profiles_pictures
 
   transcendence_nginx:
     container_name: ft-transcendence-nginx
@@ -53,7 +54,8 @@ services:
       interval: 2s
       timeout: 2s
       retries: 1
-
+    volumes:
+      - profiles_pictures:/usr/share/nginx/html/assets/data/static/profiles_pictures:ro
 volumes:
   auth_vlm:
     name: auth_vlm
@@ -62,6 +64,9 @@ volumes:
       type: none
       o: bind
       device: ~/sgoinfre/ft_transcendence/data/auth_service
+  profiles_pictures:
+    name: profiles_pictures
+    driver: local
 
 networks:
   ft_transcendence_front:
