@@ -128,6 +128,7 @@ function clean() {
 
   $DOCKER_COMPOSE down -v
   docker builder prune -af
+  docker system prune -af
 
   [ -f "$CERT_PATH/key.pem" ] && rm -f "$CERT_PATH/key.pem"
   [ -f "$CERT_PATH/cert.pem" ] && rm -f "$CERT_PATH/cert.pem"
