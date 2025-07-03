@@ -4,3 +4,5 @@
 node_modules/
 output/
 package-lock.json
+/nginx/web_server/key.pem
+/nginx/web_server/cert.pem
