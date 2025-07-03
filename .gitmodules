@@ -16,3 +16,6 @@
 [submodule "matchmaking_service"]
 	path = matchmaking_service
 	url = git@github.com:42-Transcendance-CGSSV/match_making_service.git
+[submodule "match_history_service"]
+	path = match_history_service
+	url = git@github.com:42-Transcendance-CGSSV/match_history.git
