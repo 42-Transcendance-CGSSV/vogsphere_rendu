@@ -13,3 +13,6 @@
 [submodule "pong_ai_service"]
 	path = pong_ai_service
 	url = git@github.com:42-Transcendance-CGSSV/pong_ai_service.git
+[submodule "matchmaking_service"]
+	path = matchmaking_service
+	url = git@github.com:42-Transcendance-CGSSV/match_making_service.git
