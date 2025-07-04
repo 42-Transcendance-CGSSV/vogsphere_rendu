@@ -29,6 +29,27 @@ services:
       - auth_vlm:/app/
       - profiles_pictures:/app/data/static/profiles_pictures
 
+  transcendence_matchmaking:
+    container_name: ft-transcendence-matchmaking
+    build:
+      context: ./matchmaking_service
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      transcendence_auth:
+        condition: service_healthy
+      transcendence_pong:
+        condition: service_healthy
+    networks:
+      - ft_transcendence_back
+    env_file:
+      - .env
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3008/healthcheck" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
   transcendence_ai:
     container_name: ft-transcendence-ai
     build:
@@ -46,23 +67,6 @@ services:
       retries: 3
     volumes:
       - models:/app/assets/models:ro
-#  ft-transcendence-ai             | can't open files on /home/tchorniy/transcendence/pong_ai_service/assets/models
-
-  transcendence_match_history:
-    container_name: ft-transcendence-match-history
-    build:
-      context: ./match_history_service
-      dockerfile: Dockerfile
-    restart: always
-    networks:
-      - ft_transcendence_back
-    env_file:
-      - .env
-    healthcheck:
-      test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3004/healthcheck" ]
-      interval: 5s
-      timeout: 5s
-      retries: 3
 
   transcendence_pong:
     container_name: ft-transcendence-pong
@@ -70,12 +74,34 @@ services:
       context: ./pong_service
       dockerfile: Dockerfile
     restart: always
+    depends_on:
+      transcendence_auth:
+        condition: service_healthy
     networks:
       - ft_transcendence_back
     env_file:
       - .env
     healthcheck:
       test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3001/healthcheck" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  transcendence_match_history:
+    container_name: ft-transcendence-match-history
+    build:
+      context: ./match_history_service
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      transcendence_auth:
+        condition: service_healthy
+    networks:
+      - ft_transcendence_back
+    env_file:
+      - .env
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3004/healthcheck" ]
       interval: 5s
       timeout: 5s
       retries: 3
@@ -88,7 +114,6 @@ services:
       dockerfile: Dockerfile
     restart: always
     networks:
-      - ft_transcendence_front
       - ft_transcendence_back
     env_file:
       - .env
@@ -100,8 +125,10 @@ services:
         condition: service_completed_successfully
       transcendence_auth:
         condition: service_healthy
-#      transcendence_pong:
-#        condition: service_healthy
+      transcendence_pong:
+        condition: service_healthy
+      transcendence_matchmaking:
+        condition: service_healthy
       transcendence_match_history:
         condition: service_healthy
     healthcheck:
@@ -128,9 +155,6 @@ volumes:
     driver: local
 
 networks:
-  ft_transcendence_front:
-    name: transcendence_front
-    driver: bridge
   ft_transcendence_back:
     name: transcendence_back
     driver: bridge
