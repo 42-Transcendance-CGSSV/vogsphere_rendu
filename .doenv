@@ -4,3 +4,4 @@ BREVO_API_KEY=default_api_key
 JWT_SECRET=default_secret
 IP=0.0.0.0
 VITE_IP=0.0.0.0
+BACKEND_TOKEN=default_backend_token
