@@ -60,6 +60,9 @@ services:
       - ft_transcendence_back
     env_file:
       - .env
+    depends_on:
+      transcendence_pong:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3012/healthcheck" ]
       interval: 5s
