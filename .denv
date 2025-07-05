@@ -1,0 +1,7 @@
+ENVIRONMENT=DEVELOPMENT
+LOG_LEVEL=debug
+BREVO_API_KEY=default_api_key
+JWT_SECRET=default_secret
+BACKEND_TOKEN=default_token
+IP=0.0.0.0
+VITE_IP=0.0.0.
