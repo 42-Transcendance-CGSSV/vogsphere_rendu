@@ -86,7 +86,7 @@ function build() {
   mkdir -p ~/sgoinfre/ft_transcendence/data/auth_service
   echo -e "${GREEN}Building all services...${NC}"
   export DOCKER_BUILDKIT=1
-  $DOCKER_COMPOSE --parallel 27 up --build
+  $DOCKER_COMPOSE --parallel 11 up --build
 }
 
 function down() {

@@ -4,11 +4,13 @@ services:
     build:
       context: ./omni_front
       dockerfile: Dockerfile
-      target: builded
       args:
         VITE_IP: ${VITE_IP}
-    image: ft_transcendence:builded-front
     restart: "no"
+    volumes:
+      - frontend_dist:/app/build
+      - frontend_dist:/app/assets
+
 
   transcendence_auth:
     container_name: ft-transcendence-auth
@@ -107,7 +109,6 @@ services:
       timeout: 5s
       retries: 3
 
-
   transcendence_nginx:
     container_name: ft-transcendence-nginx
     build:
@@ -123,7 +124,7 @@ services:
       - "8080:80"
     depends_on:
       transcendence_front_end:
-        condition: service_completed_successfully
+        condition: service_started
       transcendence_auth:
         condition: service_healthy
       transcendence_pong:
@@ -139,15 +140,16 @@ services:
       timeout: 2s
       retries: 1
     volumes:
-      - profiles_pictures:/usr/share/nginx/html/assets/data/static/profiles_pictures:ro
+      - profiles_pictures:/usr/share/nginx/html/assets/data/static/profiles_pictures
+      - frontend_dist:/usr/share/nginx/html
+
 volumes:
+  frontend_dist:
+    name: frontend_dist
+    driver: local
   auth_vlm:
     name: auth_vlm
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ~/sgoinfre/ft_transcendence/data/auth_service
   profiles_pictures:
     name: profiles_pictures
     driver: local
