@@ -138,6 +138,23 @@ function clean() {
   echo -e "${GREEN}Clean completed.${NC}"
 }
 
+function fastclean() {
+  set -e  # Exit on error
+
+  CERT_PATH="./nginx/web_server"
+  DATA_PATH="$HOME/sgoinfre/ft_transcendence/"
+
+  echo -e "${YELLOW}This will stop containers, prune images, and delete files.${NC}"
+
+  $DOCKER_COMPOSE down -v
+  docker rmi $(docker images --format '{{.Repository}}:{{.Tag}}' | grep -v 'node:alpine3.22' | xargs -r docker rmi -f 2>/dev/null) 2>/dev/null || true
+  docker volume prune -af
+  docker network prune -f
+
+  [ -d "$DATA_PATH" ] && rm -rf "$DATA_PATH"
+  echo -e "${GREEN}Clean completed.${NC}"
+}
+
 # Dispatcher
 case "$1" in
   help|"") help ;;
@@ -149,6 +166,7 @@ case "$1" in
   logs) shift; logs "$@" ;;
   ps) ps_containers ;;
   clean) clean ;;
+  fastclean) fastclean ;;
   setup-ssl) setup_ssl ;;
   check-env) check_env ;;
   rebuild) shift; rebuild "$@" ;;
