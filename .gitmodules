@@ -19,3 +19,6 @@
 [submodule "match_history_service"]
 	path = match_history_service
 	url = git@github.com:42-Transcendance-CGSSV/match_history.git
+[submodule "friends_service"]
+	path = friends_service
+	url = git@github.com:42-Transcendance-CGSSV/friends_service.git
