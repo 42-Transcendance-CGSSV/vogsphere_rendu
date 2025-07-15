@@ -41,7 +41,7 @@ services:
       transcendence_auth:
         condition: service_healthy
       transcendence_pong:
-        condition: service_healthy
+        condition: service_started
     networks:
       - ft_transcendence_back
     env_file:
