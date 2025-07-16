@@ -90,6 +90,25 @@ services:
       timeout: 5s
       retries: 3
 
+  transcendence_friends:
+    container_name: ft-transcendence-friends
+    build:
+      context: ./friends_service
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      transcendence_auth:
+        condition: service_healthy
+    networks:
+      - ft_transcendence_back
+    env_file:
+      - .env
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3004/healthcheck" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
   transcendence_match_history:
     container_name: ft-transcendence-match-history
     build:

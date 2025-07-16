@@ -155,16 +155,14 @@ function fastclean() {
 case "$1" in
   help|"") help ;;
   build) shift; build "$@" ;;
-  up) up ;;
-  down) down ;;
-  stop) stop ;;
   restart) shift; restart "$@" ;;
   logs) shift; logs "$@" ;;
+  down) down ;;
+  stop) stop ;;
   ps) ps_containers ;;
   clean) clean ;;
   fastclean) fastclean ;;
   setup-ssl) setup_ssl ;;
   check-env) check_env ;;
-  rebuild) shift; rebuild "$@" ;;
   *) echo "Commande inconnue: $1."; help ;;
 esac
