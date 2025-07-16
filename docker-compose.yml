@@ -104,10 +104,12 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3004/healthcheck" ]
+      test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3052/healthcheck" ]
       interval: 5s
       timeout: 5s
       retries: 3
+    volumes:
+      - friends_data:/app/data
 
   transcendence_match_history:
     container_name: ft-transcendence-match-history
@@ -176,6 +178,9 @@ volumes:
     name: models
     driver: local
   training_data:
+    name: data
+    driver: local
+  friends_data:
     name: data
     driver: local
 
