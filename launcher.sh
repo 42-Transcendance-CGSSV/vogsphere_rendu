@@ -22,7 +22,6 @@ Commands:
   ps                 Liste les conteneurs
   clean              Nettoie les volumes, images, certifs, tokens
   setup-ssl          Génère les certificats SSL
-  setup-env          Génère les tokens dans .env
 EOF
 }
 
@@ -43,7 +42,7 @@ function check_env() {
 
   local required_vars=(
     ENVIRONMENT LOG_LEVEL BREVO_API_KEY
-    JWT_SECRET IP
+    JWT_SECRET IP SSL_KEY SSL_CERT
   )
 
   for var in "${required_vars[@]}"; do
@@ -60,17 +59,14 @@ function check_env() {
 function setup_ssl() {
   echo -e "${YELLOW}Setting up SSL...${NC}"
 
-  mkdir -p ~/.local/bin/;
-  if [ ! -f ~/.local/bin/mkcert ]; then
+  if [ ! -f ./mkcert ]; then
     curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
     chmod +x mkcert-v*-linux-amd64
-    mv mkcert-v*-linux-amd64 ~/.local/bin/mkcert
-    grep -qxF 'export PATH="$HOME/.local/bin:$PATH"' ~/.zshrc || echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
-    zsh
+    mv mkcert-v*-linux-amd64 ./mkcert
   fi
   mkdir -p nginx/web_server
   if [ ! -f nginx/web_server/key.pem ] || [ ! -f nginx/web_server/cert.pem ]; then
-    mkcert -cert-file nginx/web_server/cert.pem -key-file nginx/web_server/key.pem \
+    ./mkcert -cert-file nginx/web_server/cert.pem -key-file nginx/web_server/key.pem \
     localhost 127.0.0.1 $(ip addr | awk '/inet / {if (++n==2) print $2}' | cut -d/ -f1) ::1
     echo -e "${GREEN}SSL Certificate generated !${NC}"
   else
@@ -81,12 +77,12 @@ function setup_ssl() {
 }
 
 function build() {
-  check_env
   setup_ssl
+  check_env
   mkdir -p ~/sgoinfre/ft_transcendence/data/auth_service
   echo -e "${GREEN}Building all services...${NC}"
   export DOCKER_BUILDKIT=1
-  $DOCKER_COMPOSE --parallel 11 up --build
+  $DOCKER_COMPOSE --parallel 21 up --build
 }
 
 function down() {
