@@ -26,7 +26,7 @@ services:
       test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3000/healthcheck" ]
       interval: 5s
       timeout: 5s
-      retries: 3
+      retries: 5
     volumes:
       - auth_vlm:/app/
       - profiles_pictures:/app/data/static/profiles_pictures
@@ -50,7 +50,7 @@ services:
       test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3008/healthcheck" ]
       interval: 5s
       timeout: 5s
-      retries: 3
+      retries: 5
 
   transcendence_ai:
     container_name: ft-transcendence-ai
@@ -66,7 +66,7 @@ services:
       test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3012/healthcheck" ]
       interval: 5s
       timeout: 5s
-      retries: 3
+      retries: 5
     volumes:
       - models:/app/assets/models
       - training_data:/app/assets/data:ro
@@ -88,7 +88,7 @@ services:
       test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3001/healthcheck" ]
       interval: 5s
       timeout: 5s
-      retries: 3
+      retries: 5
 
   transcendence_friends:
     container_name: ft-transcendence-friends
@@ -107,7 +107,7 @@ services:
       test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3052/healthcheck" ]
       interval: 5s
       timeout: 5s
-      retries: 3
+      retries: 5
     volumes:
       - friends_data:/app/data
 
@@ -128,7 +128,7 @@ services:
       test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3004/healthcheck" ]
       interval: 5s
       timeout: 5s
-      retries: 3
+      retries: 5
 
   transcendence_nginx:
     container_name: ft-transcendence-nginx
@@ -157,9 +157,9 @@ services:
     healthcheck:
       test: [ "CMD", "wget", "--spider", "-q", "https://0.0.0.0:25565/nginx_heath" ]
       start_period: 1s
-      interval: 2s
-      timeout: 2s
-      retries: 1
+      interval: 5s
+      timeout: 5s
+      retries: 5
     volumes:
       - profiles_pictures:/usr/share/nginx/html/assets/data/static/profiles_pictures
       - frontend_dist:/usr/share/nginx/html
