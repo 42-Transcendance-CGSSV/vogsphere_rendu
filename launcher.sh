@@ -42,7 +42,7 @@ function check_env() {
 
   local required_vars=(
     ENVIRONMENT LOG_LEVEL BREVO_API_KEY
-    JWT_SECRET IP SSL_KEY SSL_CERT
+    JWT_SECRET IP
   )
 
   for var in "${required_vars[@]}"; do
@@ -82,7 +82,7 @@ function build() {
   mkdir -p ~/sgoinfre/ft_transcendence/data/auth_service
   echo -e "${GREEN}Building all services...${NC}"
   export DOCKER_BUILDKIT=1
-  $DOCKER_COMPOSE --parallel 21 up --build
+  $DOCKER_COMPOSE --parallel 10 up --build
 }
 
 function down() {
