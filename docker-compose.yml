@@ -23,7 +23,7 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3000/healthcheck" ]
+      test: [ "CMD", "curl", "https://ft-transcendence-auth:3000/healthcheck", "--cacert", "/etc/ssl/certs/ca-certificates.crt" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -47,7 +47,7 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3008/healthcheck" ]
+      test: [ "CMD", "curl", "https://ft-transcendence-matchmaking:3008/healthcheck", "--cacert", "/etc/ssl/certs/ca-certificates.crt" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -63,7 +63,7 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3012/healthcheck" ]
+      test: [ "CMD", "curl", "https://ft-transcendence-ai:3012/healthcheck", "--cacert", "/etc/ssl/certs/ca-certificates.crt" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -85,7 +85,7 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3001/healthcheck" ]
+      test: [ "CMD", "curl", "https://ft-transcendence-pong:3001/healthcheck", "--cacert", "/etc/ssl/certs/ca-certificates.crt" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -104,7 +104,7 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3052/healthcheck" ]
+      test: [ "CMD", "curl", "https://ft-transcendence-friends:3052/healthcheck", "--cacert", "/etc/ssl/certs/ca-certificates.crt" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -125,7 +125,7 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "-q", "http://0.0.0.0:3004/healthcheck" ]
+      test: [ "CMD", "curl", "https://ft-transcendence-match-history:3004/healthcheck", "--cacert", "/etc/ssl/certs/ca-certificates.crt" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -141,6 +141,7 @@ services:
     env_file:
       - .env
     ports:
+      - "443:443"
       - "25565:443"
       - "8080:80"
     depends_on:

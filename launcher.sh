@@ -2,7 +2,7 @@
 
 COMPOSE_FILE="docker-compose.yml"
 DOCKER_COMPOSE="docker compose --file $COMPOSE_FILE"
-
+SERVICES=(auth_service friends_service match_history_service matchmaking_service pong_ai_service pong_service)
 GREEN="\033[0;32m"
 YELLOW="\033[0;33m"
 RED="\033[0;31m"
@@ -58,28 +58,38 @@ function check_env() {
 
 function setup_ssl() {
   echo -e "${YELLOW}Setting up SSL...${NC}"
+  mkdir -p nginx/web_server
 
   if [ ! -f ./mkcert ]; then
     curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
     chmod +x mkcert-v*-linux-amd64
     mv mkcert-v*-linux-amd64 ./mkcert
   fi
-  mkdir -p nginx/web_server
+
   if [ ! -f nginx/web_server/key.pem ] || [ ! -f nginx/web_server/cert.pem ]; then
     ./mkcert -cert-file nginx/web_server/cert.pem -key-file nginx/web_server/key.pem \
-    localhost 127.0.0.1 $(ip addr | awk '/inet / {if (++n==2) print $2}' | cut -d/ -f1) ::1
+    localhost 0.0.0.0 127.0.0.1 transcendence_nginx ft-transcendence-match-history ft-transcendence-auth ft-transcendence-matchmaking ft-transcendence-ai ft-transcendence-pong ft-transcendence-friends $(ip addr | awk '/inet / {if (++n==2) print $2}' | cut -d/ -f1) ::1
     echo -e "${GREEN}SSL Certificate generated !${NC}"
   else
     echo -e "${GREEN}SSL Certificate is already present !${NC}"
   fi
   chmod 644 nginx/web_server/key.pem
   chmod 600 nginx/web_server/cert.pem
+
+  for service in "${SERVICES[@]}"; do
+      cp nginx/web_server/cert.pem ./$service/cert.pem
+      cp nginx/web_server/key.pem ./$service/key.pem
+      cp ~/.local/share/mkcert/rootCA.pem ./$service/ca.crt
+
+      chmod 644 ./$service/key.pem
+      chmod 600 ./$service/cert.pem
+      echo -e "${GREEN}SSL Certificate copied to $service !${NC}"
+  done
 }
 
 function build() {
   setup_ssl
   check_env
-  mkdir -p ~/sgoinfre/ft_transcendence/data/auth_service
   echo -e "${GREEN}Building all services...${NC}"
   export DOCKER_BUILDKIT=1
   $DOCKER_COMPOSE --parallel 10 up --build
@@ -117,7 +127,6 @@ function clean() {
   set -e  # Exit on error
 
   CERT_PATH="./nginx/web_server"
-  DATA_PATH="$HOME/sgoinfre/ft_transcendence/"
 
   echo -e "${YELLOW}This will stop containers, prune images, and delete SSL/data files.${NC}"
   read -p "Are you sure you want to continue? [y/N] " confirm
@@ -131,16 +140,18 @@ function clean() {
   [ -f "$CERT_PATH/key.pem" ] && rm -f "$CERT_PATH/key.pem"
   [ -f "$CERT_PATH/cert.pem" ] && rm -f "$CERT_PATH/cert.pem"
 
+  for service in "${SERVICES[@]}"; do
+    [ -f "./$service/key.pem" ] && rm -f "./$service/key.pem"
+    [ -f "./$service/cert.pem" ] && rm -f "./$service/cert.pem"
+    [ -f "./$service/ca.crt" ] && rm -f "./$service/ca.crt"
+  done
+
   [ -d "$DATA_PATH" ] && rm -rf "$DATA_PATH"
   echo -e "${GREEN}Clean completed.${NC}"
 }
 
 function fastclean() {
   set -e  # Exit on error
-
-  CERT_PATH="./nginx/web_server"
-  DATA_PATH="$HOME/sgoinfre/ft_transcendence/"
-
   echo -e "${YELLOW}This will stop containers, prune images, and delete files.${NC}"
 
   $DOCKER_COMPOSE down -v
