@@ -141,7 +141,6 @@ services:
     env_file:
       - .env
     ports:
-      - "443:443"
       - "25565:443"
       - "8080:80"
     depends_on:
